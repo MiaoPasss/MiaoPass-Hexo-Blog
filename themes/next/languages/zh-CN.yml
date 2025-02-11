@@ -6,10 +6,10 @@ title:
   tag: 标签
   schedule: 日程表
 menu:
-  home: 首页
-  archives: 归档
-  categories: 分类
-  tags: 标签
+  home: 首页 | Home
+  archives: 归档 | Archives
+  categories: 分类 | Categories
+  tags: 标签 | Tags
   about: 关于
   search: 搜索
   schedule: 日程表
