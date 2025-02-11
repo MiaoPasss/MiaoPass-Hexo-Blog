@@ -7,9 +7,7 @@ tags:
 - 渲染
 ---
 
-## CRT显示器
-
-显示器类别比较：https://blog.csdn.net/m0_69378371/article/details/145129033
+## 显示器类别
 
 根据显示技术和用途的不同，显示器可以分为多种类型，主要包括：
 -   **阴极射线管显示器（CRT）**
@@ -18,8 +16,6 @@ tags:
 -   **等离子显示器（PDP）**
 -   **有机发光二极管显示器（OLED）**
 -   **量子点显示器（QLED）**
-
-<br>
 
 ## VSync 工作原理
 
@@ -50,3 +46,14 @@ If you're playing a game that has a framerate that routinely stays above your re
 All hope is not lost however. There is a technique called triple-buffering that solves this VSync problem. Lets go back to our 50FPS, 75Hz example. Frame 1 is in the frame buffer, and 2/3 of frame 2 are drawn in the back buffer. The refresh happens and frame 1 is grabbed for the first time. The last third of frame 2 are drawn in the back buffer, and the first third of frame 3 is drawn in the second back buffer (hence the term triple-buffering). The refresh happens, frame 1 is grabbed for the second time, and frame 2 is copied into the frame buffer and the first part of frame 3 into the back buffer. The last 2/3 of frame 3 are drawn in the back buffer, the refresh happens, frame 2 is grabbed for the first time, and frame 3 is copied to the frame buffer. The process starts over. This time we still got 2 frames, but in only 3 refresh cycles. That's 2/3 of the refresh rate, which is 50FPS, exactly what we would have gotten without it. Triple-buffering essentially gives the video card someplace to keep doing work while it waits to transfer the back buffer to the frame buffer, so it doesn't have to waste time. Unfortunately, triple-buffering isn't available in every game, and in fact it isn't too common. It also can cost a little performance to utilize, as it requires extra VRAM for the buffers, and time spent copying all of them around. However, triple-buffered VSync really is the key to the best experience as you eliminate tearing without the downsides of normal VSync (unless you consider the fact that your FPS is capped a downside... which is silly because you can't see an FPS higher than your refresh anyway).  
   
 I hope this was informative, and will help people understand the intracacies of VSync (and hopefully curb the "VSync, yes or no?" debates!). Generally, if triple buffering isn't available, you have to decide whether the discrete framerate limitations of VSync and the issues that can cause are worth the visual improvement of the elimination of tearing. It's a personal preference, and it's entirely up to you.
+
+
+---
+
+# Credits
+
+VSync explanation: https://hardforum.com/threads/how-vsync-works-and-why-people-loathe-it.928593/
+
+CRT显示器和各类显示器比较：https://blog.csdn.net/m0_69378371/article/details/145129033
+
+---
