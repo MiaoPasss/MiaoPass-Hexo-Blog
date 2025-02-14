@@ -37,7 +37,7 @@ A proxy server (forward proxy) takes requests from a client and forwards them to
 
 网络设备和组件在接收一个帧之后，需要一段短暂的时间来恢复并为接收下一帧.做准备互联网帧间隙共20字节，包括：
 - 以太网最小帧间隙 12Byte
-- 数据链路层帧 前导码 7Byte，用于时钟同步 Preamble (PRE) was initially developed to accommodate the loss of a few bits as a result of signal delays. This is a sequence of alternate 0s and 1s that denotes the beginning of the frame and enables bit synchronization between the sender and receiver.
+- 数据链路层帧 前导码 7Byte，用于时钟同步 This is a sequence of alternate 0s and 1s that denotes the beginning of the frame and enables bit synchronization between the sender and receiver.
 - 帧开始标识 1Byte （标识帧的开始）
 
 #### 5. 物理层
