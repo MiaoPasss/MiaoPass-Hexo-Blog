@@ -1,10 +1,9 @@
 ---
 title: 显示器和VSync工作原理
 date: 2025-02-11 14:31:30
-categories: 图形学笔记
+categories: 画面渲染
 tags: 
 - 游戏画面设置
-- 渲染
 ---
 
 ## 显示器类别

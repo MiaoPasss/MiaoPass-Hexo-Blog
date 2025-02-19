@@ -1,9 +1,8 @@
 ---
 title: C#中的unsafe、fixed和checked关键字
 date: 2025-02-11 15:19:51
-categories: 编程笔记
-tags:
-- C#语法
+categories: C#编程
+tags: 
 - 内存管理
 ---
 

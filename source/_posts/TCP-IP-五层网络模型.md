@@ -1,9 +1,10 @@
 ---
 title: TCP/IP 五层网络模型
 date: 2025-02-12 17:26:08
-categories: 编程笔记
-tags:
-- 网络模型
+categories: 网络模型
+tags: 
+- 代理服务器
+- 以太网帧
 ---
 
 五层体系结构包括：应用层、运输层、网络层、数据链路层和物理层。 
@@ -16,7 +17,7 @@ tags:
 #### 1. 应用层
 应用层是网络通信的最高层，它定义了应用程序和网络之间的接口。在这一层，用户可以直接与应用程序进行交互。常见的应用层协议有HTTP、FTP、SMTP等。
 
-- **Proxy** 
+- **Proxy**
 A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.
 
 #### 2. 传输层

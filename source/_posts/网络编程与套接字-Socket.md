@@ -1,9 +1,10 @@
 ---
 title: 网络编程与套接字(Socket)
 date: 2025-02-13 09:35:34
-categories: 编程笔记
-tags:
+categories: 网络模型
+tags: 
 - 网络编程
+- 套接字
 ---
 
 # Socket vs Port
