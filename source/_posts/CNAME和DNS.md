@@ -6,6 +6,18 @@ tags:
 - 域名解析
 ---
 
+## 域名解析协议 Domain Name System
+    1. 通过域名访问网页
+    2. 计算机会先将域名发送到一个解析域名的服务器上
+        2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)
+        2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合
+        2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，
+        所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，
+        以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。
+        2.4. 找到了，就能找到我们要访问的服务器了。
+
+---
+
 ## 根域名
 ![图片](RootDomain.jpg "域名结构")
 Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).
@@ -26,7 +38,7 @@ The "@" symbol in this example indicates that this is a record for the root doma
 
 ---
 
-## 别名记录
+## CNAME 别名记录
 CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：
 
 > www.yy.com → www.xx.com → 1.1.1.1

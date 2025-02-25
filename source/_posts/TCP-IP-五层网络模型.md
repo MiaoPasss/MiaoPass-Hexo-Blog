@@ -8,11 +8,6 @@ tags:
 - 域名解析
 ---
 
-五层体系结构包括：应用层、运输层、网络层、数据链路层和物理层。 
-五层协议只是OSI和TCP/IP的综合，实际应用还是TCP/IP的四层结构。为了方便可以把下两层称为网络接口层。
-
----
-
 # TCP/IP网络模型各层协议功能
 
 #### 1. 应用层
@@ -21,18 +16,15 @@ tags:
 - **Proxy**
 A proxy server (forward proxy) takes requests from a client and forwards them to the internet, a reverse proxy takes requests from the internet and forwards them to a server.
 
-- **Domain Name System**
-    1. 通过域名访问网页
-    2. 计算机会先将域名发送到一个解析域名的服务器上
-        2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)
-        2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合
-        2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，
-        所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，
-        以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。
-        2.4. 找到了，就能找到我们要访问的服务器了。
+- **Transport Layer Security**
+SSL/TLS uses asymmetric encryption is used to establish a secure session between a client and a server, and symmetric encryption is used to exchange data within the secured session. 
+密钥：数据的加密是通过密钥进行的，通过密钥，明文被加密成密文。密钥分为对称加密密钥和非对称加密密钥。密钥为一段随机生成的数，通常以 .pem或者 .key文件保存，可以使用Openssl生成。
+对称加密：加密解密都是使用同一个密钥。服务器使用该密钥进行加密，经过传输后客户端使用该密钥解密。该方式效率高，但存在安全隐患。
+非对称加密：非对称加密具有一个密钥对，公钥和私钥，理论上来说公钥和私钥并不区分，便于区分将保存在本地的那个叫做私钥，将需要传输给对方的那个叫做公钥。数据经过私钥加密后，只能由对应的公钥解密，同样数据经过公钥加密后，只能由对应的私钥解密。那么只要客户端拥有服务器的公钥，通过公钥加密报文，服务器用自己的私钥解密就可以实现对传输过程的加密。非对称加密的效率比较低，而且仍有被中间人攻击的风险。
+证书颁发机构：CA机构是权威的第三方，机构本身具有自己的CA公钥与CA私钥，CA公钥是发给全体互联网成员的，可以将其称为CA证书。服务器需要将自己的 公钥以及认证信息经过HASH加密后发改CA机构，CA机构使用CA私钥对提交的信息进行加密，这就得到了带有数字签名的数据。在使用时使用CA公钥对带有数字签名的数据解密，得到经HASH后的数据，同时将公钥以及认证信息 经过HASH加密后与CA解密后的数据比对，验证电子签名的安全性。
 
 #### 2. 传输层
-传输层负责在源主机和目标主机之间建立数据传输通道。它提供了可靠的数据传输服务，确保数据的正确传输顺序和可靠性。TCP协议就是传输层协议的一种，它提供了可靠的、面向连接的数据传输服务。
+传输层负责在源主机和目标主机（端到端）之间建立数据传输通道，主要协议有TCP和UDP。
 
 #### 3. 网络层
 网络层负责在网络上寻址和路由数据包。它定义了数据在网络中的传输路径，使得数据可以从源主机传输到目标主机。常见的网络层协议有IP协议。
@@ -41,7 +33,7 @@ A proxy server (forward proxy) takes requests from a client and forwards them to
 ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解析为MAC地址的协议。主机或三层网络设备上会维护一张ARP表，用于存储IP地址和MAC地址的映射关系
 
 #### 4. 数据链路层
-数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。它负责数据的分段和重新组装，以及物理介质的访问控制。常见的数据链路层协议有以太网协议。
+数据链路层协议负责将网络层传输的数据分组封装成帧，传输到物理层，并通过物理介质进行传输。常见的数据链路层协议有以太网和Wi-Fi等。
 
 - **以太网帧**
 ![](ethernet-frame-format.png)
@@ -77,5 +69,6 @@ ARP（Address Resolution Protocol，地址解析协议）是用来将IP地址解
 # Credits
 
 详解TCP/IP五层网络模型：https://blog.csdn.net/2201_75437633/article/details/137373813
+TLS/SSL：https://blog.csdn.net/weixin_44640149/article/details/134667685
 
 ---
