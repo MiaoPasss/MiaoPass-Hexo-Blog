@@ -6,25 +6,25 @@ tags:
 - 域名解析
 ---
 
-## 域名解析协议 Domain Name System
-    1. 通过域名访问网页
-    2. 计算机会先将域名发送到一个解析域名的服务器上
-        2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)
-        2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合
-        2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，
-        所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，
-        以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。
-        2.4. 找到了，就能找到我们要访问的服务器了。
+# 域名解析协议 Domain Name System
+1. 通过域名访问网页
+2. 计算机会先将域名发送到一个解析域名的服务器上
+    2.1. 在网络上有很多服务器，能解析各种各样的域名，比如有专门解析.org的，解析.com的，解析.net的。等等，最主要的有一个根域名服务器(Root Name Server)
+    2.2. 域名解析(在服务器上查找IP地址)的过程有两种算法，迭代查询，递归查询。一般是两种查询的结合
+    2.3. 本机计算机找到其中一台解析域名的服务器(可能是.com)，如果没有找到对应的IP地址，那么就会去找根域名服务器，根域名服务器知道所有的子服务器，
+    所以他肯定知道该域名所对应的IP地址在那个子服务器中，所以告诉第一次查询的服务器要他去另一台服务器上找，找到了，就将其返回给计算机，
+    以后在有另一台计算机也通过这个域名访问，那么第一台服务器会有原来的域名IP地址的缓存，就不用去找根服务器了。
+    2.4. 找到了，就能找到我们要访问的服务器了。
 
 ---
 
-## 根域名
+# 根域名
 ![图片](RootDomain.jpg "域名结构")
 Root Domain is the highest hierarchical level of a site and is separated from the Top Level Domain by a dot (e.g. rootdomain.com).
 
 ---
 
-## A 记录
+# A 记录
 Address Record indicates the IP address of a given domain. For example, if you pull the DNS records of cloudflare.com, the A record currently returns an IP address of: 104.17.210.9. A records only hold IPv4 addresses. If a website has an IPv6 address, it will instead use an "AAAA" record.
 
 ![图片](ARecord.png "A记录组成部分")
@@ -33,12 +33,12 @@ The "@" symbol in this example indicates that this is a record for the root doma
 
 ---
 
-## 内容分发网络
+# 内容分发网络
 内容分发网络 (CDN) 是一个分布在不同地理位置的服务器群，用于缓存靠近最终用户的内容。CDN 可以快速传输加载互联网内容所需的资产，包括 HTML 网页、JavaScript 文件、样式表、图像和视频。
 
 ---
 
-## CNAME 别名记录
+# CNAME 别名记录
 CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名儿，比如www.xx.com的小名儿就叫www.yy.com好了，然后CNAME记录也和A记录一样，是一种指向关系，把小名儿www.yy.com指向了www.xx.com，然后通过A记录，www.xx.com又指向了对应的IP：
 
 > www.yy.com → www.xx.com → 1.1.1.1
@@ -47,7 +47,7 @@ CNAME记录，也叫别名记录，相当于给A记录中的域名起个小名�
 
 <br>
 
-#### 多个域名指向同一个地址
+## 多个域名指向同一个地址
 
 >www.yy.com → www.xx.com → 1.1.1.1
 www.cc.com → www.xx.com → 1.1.1.1
@@ -66,7 +66,7 @@ www.kk.com → 1.1.1.1
 
 <br>
 
-#### 使用CDN
+## 使用CDN
 
 假如你是DD公司老板，你公司中的一台IP为1.1.1.1的服务器，注册了域名为www.dd.com，要对外提供客户访问。随着公司越做越大，访问量也越来越多，服务器顶不住了，你去找CDN提供商购买CDN加速服务，这个时候他们要求你的域名做个CNAME指向他们给你的一个域名叫www.dd.cdn.com
 

@@ -9,7 +9,7 @@ tags:
 # Unity 2022.3.55f1
 ---
 
-#### 问题：属性(Property)和访问器(Accessor)
+## 问题：属性(Property)和访问器(Accessor)
 
 如果在当前属性中直接添加自定义get和set访问器，在Unity引擎中访问/修改此属性时游戏会闪退。
 
@@ -25,7 +25,7 @@ public class TestClass : MonoBehaviour
 }
 ```
 
-#### 解决方案
+### 解决方案
 
 1. 直接使用默认访问器
 
@@ -55,7 +55,7 @@ public class StartPage : MonoBehaviour
 }
 ```
 
-#### 问题：Start函数中使用不当loop循环
+## 问题：Start函数中使用不当loop循环
 
 如果在start函数中使用while循环处理资源加载进度条，Unity引擎会在importing asset弹窗中卡死
 
@@ -85,7 +85,7 @@ public class TestClass : MonoBehaviour
 }
 ```
 
-#### 解决方案
+### 解决方案
 
 使用协程(Coroutine)将while操作与Unity生命周期同步
 

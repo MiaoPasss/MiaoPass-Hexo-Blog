@@ -6,6 +6,8 @@ tags:
 - 内存管理
 ---
 
+# Stack vs. Heap
+
 In C#, primitive types such as int, double, and bool are all structs. Arrays of int are allocated on heap as int structs, only pointer to them will be allocated on stack.
 To make a fixed size array be stored on stack, you need to use the *stackalloc* keyword, either with *unsafe* block or *Span* type.
 
@@ -23,7 +25,7 @@ public void foo(int length)
 }
 ```
 
-## unsafe
+# unsafe
 
 unsafe关键字用于声明不安全的代码块。在C#中，默认情况下，代码是安全的，这意味着它遵循.NET的安全规则，包括对内存的访问控制。使用unsafe关键字可以告诉编译器，你了解并信任这段代码，即使它可能违反安全规则。
 
@@ -33,7 +35,7 @@ unsafe关键字用于声明不安全的代码块。在C#中，默认情况下，
 2. 你的代码必须在unsafe代码块中。
 3. 你必须使用fixed关键字来固定内存块。
 
-## fixed
+# fixed
 
 fixed 关键字在 C# 中主要用于固定内存地址，通常与不安全代码（unsafe）一起使用。当你在不安全的代码中直接访问内存时，使用 fixed 关键字可以确保内存地址在程序运行期间保持不变。
 
@@ -59,7 +61,7 @@ unsafe class Example
 
 在这个例子中，我们创建了一个固定大小的数组 ptr，并在方法 Method 中使用它来修改另一个数组 array 的值。因为 ptr 是用 fixed 关键字声明的，所以它指向的内存地址在 Method 执行期间是固定的，不会发生位移
 
-## checked
+# checked
 
 checked关键字用于在算术运算中控制溢出检查。默认情况下，当一个整数运算结果超出了该类型的表示范围时，会抛出System.OverflowException异常。使用checked关键字可以强制执行溢出检查，并在发生溢出时抛出异常。
 

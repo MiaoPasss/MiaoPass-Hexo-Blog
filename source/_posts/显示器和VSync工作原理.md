@@ -6,7 +6,7 @@ tags:
 - 游戏画面设置
 ---
 
-## 显示器类别
+# 显示器类别
 
 根据显示技术和用途的不同，显示器可以分为多种类型，主要包括：
 -   **阴极射线管显示器（CRT）**
@@ -16,7 +16,7 @@ tags:
 -   **有机发光二极管显示器（OLED）**
 -   **量子点显示器（QLED）**
 
-## VSync 工作原理
+# VSync 工作原理
 
 What is VSync? VSync stands for Vertical Synchronization. The basic idea is that synchronizes your FPS with your monitor's refresh rate. The purpose is to eliminate something called "tearing". I will describe all these things here.  
   

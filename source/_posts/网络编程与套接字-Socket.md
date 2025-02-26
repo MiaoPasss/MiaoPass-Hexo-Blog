@@ -4,7 +4,7 @@ date: 2025-02-13 09:35:34
 categories: 网络模型
 tags: 
 - 网络编程
-- 套接字
+- 网络通信
 ---
 
 # Socket vs Port
