@@ -1,8 +1,9 @@
 ---
 title: TCP/IP 五层网络模型
 date: 2025-02-12 17:26:08
-categories: 网络模型
-tags: 
+categories: 计算机网络
+tags:
+- 网络模型
 - 代理服务器
 - 域名解析
 ---

@@ -1,9 +1,10 @@
 ---
 title: 显示器和VSync工作原理
 date: 2025-02-11 14:31:30
-categories: 画面渲染
+categories: 渲染
 tags: 
-- 游戏画面设置
+- 游戏画面
+- 刷新率
 ---
 
 # 显示器类别
