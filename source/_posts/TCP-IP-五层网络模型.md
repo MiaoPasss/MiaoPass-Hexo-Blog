@@ -1,11 +1,11 @@
 ---
 title: TCP/IP 五层网络模型
 date: 2025-02-12 17:26:08
-categories: 计算机网络
+categories: Networks
 tags:
-- 网络模型
-- 代理服务器
-- 域名解析
+- Network Model
+- Proxy
+- Domain Name Resolution
 ---
 
 # TCP/IP网络模型各层协议功能

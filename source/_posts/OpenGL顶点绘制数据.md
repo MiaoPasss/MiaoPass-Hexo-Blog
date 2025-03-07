@@ -1,7 +1,7 @@
 ---
 title: OpenGL顶点绘制数据
 date: 2025-02-27 11:30:52
-categories: 渲染
+categories: Rendering
 tags:
 - OpenGL
 ---

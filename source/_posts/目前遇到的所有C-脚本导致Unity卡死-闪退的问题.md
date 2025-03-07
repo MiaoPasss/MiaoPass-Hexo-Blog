@@ -1,9 +1,9 @@
 ---
 title: 目前遇到的所有C#脚本导致Unity卡死/闪退的bug
 date: 2025-02-14 13:14:58
-categories: C#编程
+categories: Game Engine
 tags: 
-- Unity引擎
+- Unity
 ---
 
 # Unity 2022.3.55f1

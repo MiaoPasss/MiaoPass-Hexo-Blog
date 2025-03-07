@@ -1,11 +1,12 @@
 ---
 title: Mono vs. IL2CPP
 date: 2025-02-25 17:50:04
-categories: C#编程
+categories: Game Engine
 tags:
-- Unity引擎
-- 编译器
-- 运行环境
+- C#
+- Unity
+- Compiler
+- Runtime
 ---
 
 # Common Language Runtime

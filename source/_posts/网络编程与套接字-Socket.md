@@ -1,10 +1,10 @@
 ---
 title: 网络编程与套接字(Socket)
 date: 2025-02-13 09:35:34
-categories: 计算机网络
+categories: Networks
 tags: 
-- 网络编程
-- 网络通信
+- Network Programming
+- Network Connection
 ---
 
 # Socket vs Port
