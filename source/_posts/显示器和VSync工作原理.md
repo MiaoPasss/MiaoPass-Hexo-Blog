@@ -1,10 +1,10 @@
 ---
 title: 显示器和VSync工作原理
 date: 2025-02-11 14:31:30
-categories: Rendering
+categories: Graphics
 tags: 
-- Video Game Graphics
-- Refresh Rate
+- Game Graphics
+- Monitor
 ---
 
 # 显示器类别

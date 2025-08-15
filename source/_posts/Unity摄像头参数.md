@@ -85,6 +85,9 @@ Render Texture is a special type of Texture that is created and updated at runti
 ## Occlusion Culling(遮挡剔除): 
 Occlusion culling is a process which prevents Unity from performing rendering calculations for GameObjects that are completely hidden from view (occluded) by other GameObjects, for example if they are behind walls. (https://docs.unity.cn/Manual/OcclusionCulling.html)
 
+* Unity can bake static GameObjects (does not move at runtime) into the occlusion culling data as a Static Occluder and/or a Static Occludee.
+* Unity cannot bake dynamic GameObjects into the occlusion culling data. A dynamic GameObject can be an occludee at runtime, but it cannot be an occluder.
+
 ## Allow HDR(渲染高动态色彩画面): 
 Enables High Dynamic Range rendering for this camera.
 
