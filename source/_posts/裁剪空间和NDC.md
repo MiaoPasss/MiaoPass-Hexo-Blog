@@ -22,14 +22,14 @@ In clip space, clipping is not done against a unit cube. It is done against a cu
 
 In the example you have, the point [6, 0, 6.29, 7] is visible because all three coordinates (x,y,z) are smaller than 7.
 
-### 透视投影矩阵
+## 透视投影矩阵
 
 ![](p1.jpg "Perspective Projection Matrix") <br>
 
 此时我们就可以按如下不等式来判断一个变换后的顶点是否位于视椎体内
 ![](p3.png "Clipping") <br>
 
-### 正交投影矩阵
+## 正交投影矩阵
 
 ![](p2.jpg "Orthogonal Projection Matrix") <br>
 
@@ -42,17 +42,17 @@ In the example you have, the point [6, 0, 6.29, 7] is visible because all three 
 齐次除法将Clip Space顶点的4个分量都除以w分量，就从Clip Space转换到了NDC了。
 而NDC是一个长宽高取值范围为[-1, 1]的立方体，超过这个范围的顶点，会被GPU剪裁。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。
 
-### 透视投影除法
+## 透视投影除法
 
 ![](p5.png "齐次除法")
 
-### 正交投影除法
+## 正交投影除法
 
 ![](p6.png "齐次除法") <br>
 
 细心一点会发现，齐次坐标对于透视投影空的裁剪空间变化更大，而对正交投影的裁剪空间没有影响（正交投影的裁剪空间中顶点的w已经是1了）。
 
-### 视口变换(Viewport Transformation)
+## 视口变换(Viewport Transformation)
 
 At this moment, we’re still in 3D space.How do we get to 2D space?
 
