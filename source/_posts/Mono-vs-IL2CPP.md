@@ -58,9 +58,7 @@ Common Intermediate Language (CIL), formerly called Microsoft Intermediate Langu
 - **Just In Time compiler**
 即时编译。当程序运行时，IL通过CLR中的即时编译器(JIT)将CIL的byte code编译为目标平台的原生码(针对特定CPU的机械码)。JIT编译是在程序运行时进行的，确保了代码的可移植性和执行效率‌程序运行过程中。
 - **Ahead Of Time compiler**
-提前编译。程序运行之前，提前编译器(AOT)将C#源码直接编译为目标平台的原生码并且存储。这种方式通常用于生成本地应用程序，提高启动速度和性能‌。
-
-将.exe或.dll文件中的CIL的byte code
+将.exe或.dll文件中的CIL的byte code提前编译。程序运行之前，提前编译器(AOT)将C#源码直接编译为目标平台的原生码并且存储。这种方式通常用于生成本地应用程序，提高启动速度和性能‌。
 
 ## Unity compiler
 Unity编译C#脚本的过程通常是自动进行的，当你在Unity编辑器中构建项目时（比如导出为执行文件或者打包为Android/iOS应用），Unity会编译所有C#脚本。
