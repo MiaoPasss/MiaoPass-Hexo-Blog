@@ -2,8 +2,6 @@
 title: CNAME和域名解析
 date: 2025-02-24 13:34:05
 categories: Networks
-tags: 
-- Domain Name Resolution
 ---
 
 # 域名解析协议 Domain Name System
