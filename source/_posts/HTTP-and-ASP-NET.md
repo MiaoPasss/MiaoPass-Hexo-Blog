@@ -1,7 +1,7 @@
 ---
 title: HTTP and ASP.NET
 date: 2026-03-16 16:50:44
-tags:
+categories: Networks
 ---
 
 # HTTP

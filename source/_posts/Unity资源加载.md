@@ -1,9 +1,11 @@
 ---
 title: Unity资源加载
 date: 2026-03-20 16:49:19
-categories: Game Engine
+categories: 
+- Game Engine
+- Unity
 tags:
-- Resource Management
+- Resource management
 ---
 
 # Resources

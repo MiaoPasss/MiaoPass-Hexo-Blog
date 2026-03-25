@@ -1,9 +1,10 @@
 ---
 title: Unity摄像头参数
 date: 2025-03-07 11:30:06
-categories: Game Engine
-tags:
+categories: 
+- Game Engine
 - Unity
+tags:
 - Camera
 ---
 
