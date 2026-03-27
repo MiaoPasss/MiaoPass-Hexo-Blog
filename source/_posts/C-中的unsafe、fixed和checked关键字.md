@@ -100,8 +100,8 @@ catch (OverflowException e)
 }
 ```
 
-> 输出:
-2
+输出:
+> 2
 Arithmetic operation resulted in an overflow.
 
 如果没有checked，那么输出的就是2，不会抛出异常也不会提示结果实际上已经超出范围了。导致程序发生一些不可预估的问题；
