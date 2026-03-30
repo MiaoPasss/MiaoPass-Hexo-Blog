@@ -287,6 +287,7 @@ public class DrawCallMonitor : MonoBehaviour
 * 开启了 Tight Packing 导致 UV 计算异常
 
 # Sprite Atlas 和 Drawcall
+Atlas 本身不减少 Draw Call，它是让 batching 成为可能的前提条件。
 
 ## Sprite Atlas 
 图集解决的是纹理问题，把多张小图合并成一张大图。
@@ -303,41 +304,47 @@ public class DrawCallMonitor : MonoBehaviour
   图标B (atlas) →           Draw   ← 同一纹理，可以 batch
   图标C (atlas) →           Draw
 ```
-Atlas 本身不减少 Draw Call，它是让 batching 成为可能的前提条件。
 
-## Static Batching
-针对静态物体（勾选 Static）。在构建时，Unity 把所有使用相同材质的静态 mesh 合并成一个大 mesh，存到内存里。运行时一次 Draw Call 画完。
+## Batching
+Static Batching / GPU Instancing 能合并 Draw Call，但不能合并 SetPass Call 。
+```
+// GPU Instancing：同一材质的100个物体(DrawCall x 100)
+SetPass Call × 1   ← 只切换一次状态
+Draw Call × 1      ← 合并成一次绘制（instanced）
+```
+而 Dynamic Batching 同时减少两者，因为它把多个 mesh 合并成一个，用同一个材质一次画完。
 
-```
-场景里100棵树（同材质，Static）：
-  构建时合并 → 1个大mesh
-  运行时：SetPass × 1，Draw Call × 1
-```
-代价是内存，合并后的大 mesh 常驻内存，物体也不能移动。
+* Draw Call 多 → GPU 压力大
+* SetPass Call 多 → CPU 压力大（状态切换开销）
+* 先降 SetPass Call（合并材质、用图集），再降 Draw Call（Batching、Instancing）
 
-## Dynamic Batching
-针对动态小物体。每帧 CPU 实时把符合条件的 mesh 合并，然后一次提交。
-条件很苛刻：顶点数 < 900，不能有 tangent，缩放不能是负数等。
-```
-每帧：
-  CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call
-```
-代价是 CPU 每帧都要做合并，物体多了反而更慢，现在基本被 GPU Instancing 取代。
+Unity Stats 窗口里显示的 "SetPass Calls" 和 "Batches" 分别对应这两个指标，看这两个数比只看 Draw Call 更有参考价值。
 
-## GPU Instancing
-针对大量相同 mesh + 相同材质的物体（但允许不同的属性，比如颜色、位置）。CPU 只提交一次 mesh 数据，附带一个"实例属性数组"，GPU 自己循环绘制 N 次。
-在 Unity 中，需要在材质属性中勾选 "Enable GPU Instancing"。
+## Sprite Atlas 如何减少 Draw Call
+Sprite Atlas 确实减少 Draw Call，但不是靠自己，而是靠触发 Dynamic Batching。
 
-```hlsl
-// shader 里声明每个实例可以有不同颜色
-UNITY_INSTANCING_BUFFER_START(Props)
-    UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
-UNITY_INSTANCING_BUFFER_END(Props)
+Draw Call 能被合并的条件是：多个物体使用完全相同的材质（同 shader + 同纹理 + 同参数）。
+
+没有 Atlas 时：
 ```
-此时的CPU依然只提交1次Drawcall
+图标A → 材质A (tex_a)  ← 不同纹理 = 不同材质
+图标B → 材质B (tex_b)  ← 无法 batch
+图标C → 材质C (tex_c)  ← 3个 Draw Call
 ```
-100棵树（同mesh，同材质，不同位置/颜色）：
-  CPU：提交1次mesh + 100个transform数组
-  GPU：自己 instance 100次
-  结果：SetPass × 1，Draw Call × 1
+
+有了 Atlas，所有图标共享同一张纹理，材质变成一样的，Dynamic Batching 才能介入把它们合并：
 ```
+图标A → 材质X (atlas)  ← 同一材质
+图标B → 材质X (atlas)  ← Dynamic Batching 合并
+图标C → 材质X (atlas)  ← 1个 Draw Call
+```
+
+所以准确说法是：Atlas 统一了纹理，使 batching 成为可能，batching 才是真正减少 Draw Call 的那一步。 两者缺一不可。
+
+即使不考虑 Draw Call，Atlas 本身也有价值：
+* 减少纹理切换的 SetPass Call，这个开销比 Draw Call 更重
+* 减少内存碎片，GPU 显存里一张大图比十张小图更高效
+* 减少文件 IO，加载一张图比加载十张快
+
+# 总结
+Atlas 的核心价值是"统一材质"，Draw Call 的减少是这个统一带来的副产品，真正执行合并的是 Dynamic Batching。
