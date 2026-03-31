@@ -69,7 +69,7 @@ SetPass Call → 切换到材质3
 * 具体例子：描边效果
 描边通常需要两个 Pass：第一个 Pass 画描边（把模型沿法线方向放大，只渲染背面），第二个 Pass 画正常颜色。
 
-```hlsl
+```cpp
 Shader "Custom/Outline"
 {
     Properties
@@ -206,7 +206,7 @@ Both Dynamic Batching and SRP Batcher are triggered automatically in Unity when 
 针对大量相同 mesh + 相同材质的物体（但允许不同的属性，比如颜色、位置）。CPU 只提交一次 mesh 数据，附带一个"实例属性数组"，GPU 自己循环绘制 N 次。
 在 Unity 中，需要在材质属性中勾选 "Enable GPU Instancing"。
 
-```hlsl
+```cpp
 // shader 里声明每个实例可以有不同颜色
 UNITY_INSTANCING_BUFFER_START(Props)
     UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
