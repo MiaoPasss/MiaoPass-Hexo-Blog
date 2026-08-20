@@ -7,7 +7,14 @@ tags:
 - C#
 ---
 
-HybridCLR扩充了IL2CPP的代码，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。
+# HybridCLR 为什么存在
+Unity 常见的 C# 运行方式有两种：
+* Mono：运行 IL，可以使用 JIT，理论上比较容易动态加载 DLL。
+* IL2CPP：把 C# 编译成 IL，再转换成 C++，最后编译成原生机器码。
+
+IL2CPP Player 发布以后，逻辑已经变成原生代码。后面下载一个新的普通 C# DLL，原版 IL2CPP 并没有完整的 IL 执行能力，因此无法像 Mono 那样直接运行。
+
+HybridCLR扩充了IL2CPP的代码，为它增加了 IL 解释执行能力，使它由纯AOT Runtime变成“AOT+Interpreter“混合Runtime，进而原生支持动态加载Assembly，使得基于IL2CPP Backend打包的游戏不仅能在Android平台，也能在iOS、Consoles等限制了JIT的平台上高效地以AOT+interpreter混合模式执行。
 
 通过 "Differential Hybrid dll" 技术，可以对 AOT dll 实现任意增删改，会智能地让 *被修改或者新增的类和方法* 以 Interpreter 模式运行，但 *未被修改的类* 以AOT方式运行，从而使 *热更新的游戏逻辑* 的运行性能基本达到原生AOT的水平。
 
@@ -62,10 +69,79 @@ IL2CPP是一个纯静态的AOT运行时，不支持运行时加载DLL，因此�
 
 HybridCLR 对 IL2CPP运行时进行扩充，添加Interpreter模块，将它由AOT运行时改造为“AOT + interpreter”双引擎的混合运行时，进而实现Mono hybrid mode execution这样的机制。这样一来就能彻底支持热更新，并且兼容性极佳。对开发者来说，除了解释模式运行的部分执行得比较慢，其他方面跟标准的运行时没有区别，完美支持在iOS这种禁止JIT的平台上以解释模式无缝地运行动态加载的DLL。
 
+# 热更新流程
+通常把业务逻辑放到独立的 asmdef，例如：
+```
+Game.Runtime       基础/AOT 程序集
+Game.HotUpdate     热更新程序集
+```
+构建后得到 *Game.HotUpdate.dll*
+
+* 为了让 Unity 把 DLL 当作普通资源打进 AssetBundle，通常复制并改名为：*Game.HotUpdate.dll.bytes*
+
+它在 AB 中只是一个 TextAsset，Addressables 下载后获取字节：
+```cs 加载.dll.bytes文件
+TextAsset hotDll = await Addressables
+    .LoadAssetAsync<TextAsset>("Game.HotUpdate.dll.bytes")
+    .Task;
+
+Assembly hotAssembly = Assembly.Load(hotDll.bytes);
+```
+在 HybridCLR 环境中，Assembly.Load 会创建一个解释程序集映像。调用里面的方法时，HybridCLR 解释其 IL 指令。
+
+## AOT 与热更新代码互相调用
+程序执行过程中可能发生：
+```
+热更新方法 → 热更新方法：解释执行
+热更新方法 → Unity/AOT 方法：通过桥接调用原生代码
+AOT 方法 → 热更新方法：通过接口、虚方法、委托、反射等进入解释器
+```
+解释器的参数布局与原生 ABI 不完全相同，所以 HybridCLR 会生成 Method Bridge，将参数、返回值、结构体、泛型等在解释器与 AOT 代码之间转换。
+
+* 什么是ABI
+ABI = Application Binary Interface，应用二进制接口，它规定了两段已经编译成机器码的程序，在二进制层面怎样互相调用
+例如热更新DLL中调用AOT方法： GameObject.Find("Main Character")，GameObject.Find 是 Unity 已经 AOT 编译好的原生方法：热更新解释器栈中的参数 -> 原生 ABI参数
+或者Unity程序集调用hotEntry.Start(userId, token)，这里 Start 在热更新 DLL 中：AOT 原生代码按 ABI 得到 userId、token -> Bridge 从寄存器/原生栈取出参数 -> 组装成 HybridCLR 解释器参数
+
+这也是为什么 Player（游戏客户端） 发布前通常要执行 HybridCLR 的 Generate 流程，生成：
+* Method Bridge
+* Reverse P/Invoke Wrapper
+* AOT Generic References
+* link.xml
+* 其他 IL2CPP 辅助代码
+这些生成结果会被编译进 Player。以后热更新 DLL 如果引入了基础 Player 未覆盖的新桥接签名、被裁剪的 API 或特殊泛型，可能仍然需要重新发布 Player。
+
+## 补充 AOT 元数据
+HybridCLR 项目中还经常看到另一类 DLL：
+```
+mscorlib.dll.bytes
+System.dll.bytes
+Game.Runtime.dll.bytes
+UnityEngine.CoreModule.dll.bytes
+```
+这些不是新的热更新逻辑，而是“AOT 补充元数据”。
+
+IL2CPP 构建时会裁剪程序集，而且某些泛型实例、方法体和反射元数据不会完整保留。热更新代码可能需要这些信息，例如：
+```
+List<SomeHotUpdateType>
+Dictionary<string, SomeHotUpdateType>
+反射访问 AOT 类型
+```
+
+启动时先加载对应元数据：
+```cs
+RuntimeApi.LoadMetadataForAOTAssembly(
+    aotMetadataBytes,
+    HomologousImageMode.SuperSet
+);
+```
+然后再加载热更新 DLL。
+
+AOT 元数据必须来自对应平台、对应 Player 基线的 HybridCLR/IL2CPP 构建产物，不能随意拿 Editor DLL、Android DLL给 iOS，也不能拿新 Player 的元数据给旧 Player。
+
 # 与其他热更新方案对比
 HybridCLR是原生的C#热更新方案。通俗地说，IL2CPP相当于Mono的AOT模块，HybridCLR相当于Mono的Interpreter模块，两者合一成为完整Mono。HybridCLR使得IL2CPP变成一个全功能的Runtime，原生（即通过System.Reflection.Assembly.Load）支持动态加载DLL，从而支持iOS平台的热更新。
 
 正因为HybridCLR是原生Runtime级别实现，热更新部分的类型与主工程AOT部分类型是完全等价并且无缝统一的。可以随意调用、继承、反射或多线程，不需要生成代码或者写适配器。
 
 其他热更新方案则是独立VM，与IL2CPP的关系本质上相当于Mono中嵌入Lua的关系。因此类型系统不统一，为了让热更新类型能够继承AOT部分类型，需要写适配器，并且解释器中的类型不能为主工程的类型系统所识别。特性不完整、开发麻烦、运行效率低下。
-

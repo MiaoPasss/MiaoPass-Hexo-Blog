@@ -58,8 +58,7 @@ public class AssetBundleBuilder
 ```
 
 ## 运行时加载管理器
-```cs
-// Runtime/AssetBundleManager.cs
+```cs Runtime/AssetBundleManager.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -195,6 +194,52 @@ public class GameLoader : MonoBehaviour
     }
 }
 ```
+## 关于 catalog.json
+
+AB 是实际的数据包，可以包含：
+* Prefab
+* Texture、Sprite
+* Scene
+* Audio
+* ScriptableObject
+* 配置表
+* 热更新 DLL 的 .bytes
+* AOT 元数据 DLL 的 .bytes
+* AB 是平台相关的，Android、iOS、Windows 通常需要分别构建。
+
+*catalog.json* 不保存资源内容，它保存“资源怎样定位”的信息，例如：
+```
+地址/Label/GUID
+  → 使用哪个 Provider
+  → 对应哪个 AssetBundle
+  → Bundle 的远端 URL
+  → Bundle Hash、CRC、大小
+  → 依赖哪些其他 Bundle
+  → 最终加载的资源类型
+```
+
+所以运行时链路是：
+```
+Addressables 地址
+      ↓ 查询
+catalog.json
+      ↓ 找到 Bundle 地址和依赖
+下载/读取 AssetBundle
+      ↓
+从 AB 中取出 TextAsset、Prefab 等实际资源
+```
+
+启用 Remote Catalog 后，启动流程通常是：
+1. 加载 Player 内置的 Addressables 设置
+2. 请求远端 catalog.hash
+3. 与本地缓存 Hash 比较
+4. Hash 不同则下载新的 catalog.json
+5. 新 Catalog 指向新的或旧的 AB
+6. 按需下载变化的 AB
+
+带内容 Hash 的 AB 应当视为不可变文件，旧 AB 不要立即删除，因为新 Catalog仍可能引用未变化的旧 Bundle。
+
+---
 
 # Addressables
 Addressables 是对 AssetBundle 的高层封装，核心组件：
@@ -457,3 +502,63 @@ public class AddressablesUpdater : MonoBehaviour
     }
 }
 ```
+
+## Create New Build
+这里指 Addressables 的：
+```
+Build
+  → New Build
+  → Default Build Script
+```
+
+它构建的是 Addressables 内容，不等于构建 APK、AAB、IPA。New Build 的含义是“建立一个新的内容基线”：
+* 根据当前 Group 和 Schema 重新生成 Catalog。
+* 构建当前资源对应的 AssetBundle。
+* 生成新的 addressables_content_state.bin。
+* 不把某个已经发布的旧版本作为内容兼容约束。
+* 可能利用本地构建缓存，但逻辑上仍然是新基线。
+
+适合以下情况：
+* 第一次发布。
+* 发布新的 Player 大版本。
+* 修改了 AOT 代码或原生插件。
+* 升级 Unity、HybridCLR 或 Addressables。
+* 修改 IL2CPP、裁剪、桥接代码。
+* 大幅改变 Group、Bundle 布局、Build/Load Path。
+* 原内容状态文件丢失或不可信。
+* 更换平台。
+
+每个正式 Player 基线都应该保存：
+```
+Android / Player 1.0 / addressables_content_state.bin
+iOS     / Player 1.0 / addressables_content_state.bin
+```
+
+## Update a Previous Build
+Update Build 获取已发布内容对应的addressables_content_state.bin，把它与当前资源状态比较，然后：
+* 未变化的 Bundle 保持原名称和引用。
+* 变化的 Bundle生成新版本。
+* 生成新 Catalog。
+* 新 Catalog 可以同时引用旧 Bundle 和新 Bundle。
+* 它不会生成二进制差分补丁。
+* Bundle 内只改了一个文件，也可能需要重新下载整个 Bundle。
+
+例如初始版本：
+```
+catalog v1:
+HotCode → hotcode_aaa.bundle
+Lobby   → lobby_111.bundle
+```
+只修改热更新 DLL 后：
+```
+catalog v2:
+HotCode → hotcode_bbb.bundle   新 Bundle
+Lobby   → lobby_111.bundle     继续引用旧 Bundle
+```
+客户端只需要下载新 Catalog 和 hotcode_bbb.bundle。
+
+Update Build 适合：
+* 修改 HybridCLR 热更新 DLL。
+* 修改远端 Prefab、图片、配置表。
+* 修改活动和业务逻辑。
+* 不需要修改 Player 原生/AOT 部分的内容更新。

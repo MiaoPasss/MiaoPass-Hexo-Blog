@@ -24,6 +24,8 @@ GPU 执行光栅化、着色、输出像素
 关键点：DrawCall 本身消耗资源，但准备阶段（SetPass Call）通常比 DrawCall 本身更耗性能。
 开启批处理后，Unity 可以用一次 SetPass Call 复用同一材质状态，然后提交多个 DrawCall。所以降低 SetPass Call 往往比降低 DrawCall 更重要。
 
+---
+
 # DrawCall（绘制调用）
 DrawCall 是 CPU 向 GPU 发送的一次渲染指令，包含了 GPU 绘制所需的全部信息：几何数据、纹理、Shader、Buffer 等。
 CPU 先准备好数据，并通过调用图形API接口命令GPU对指定物体进行渲染一次的操作，称为一次DrawCall。
@@ -40,9 +42,29 @@ Image C（纹理1）→ 可以与 A 合批，不增加 DrawCall
 
 为了CPU和GPU可以进行并行工作，需要一个命令缓冲区，由CPU向其中添加命令，然后由GPU从中读取命令，这样就实现了通过CPU准备数据，通知GPU进行渲染。
 
+---
+
 # SetPass Call
 在 Draw Call 之前，如果需要切换渲染状态（shader、材质属性、纹理等），CPU 就要先做一次 SetPass Call 来通知 GPU 切换 Pass。
 SetPass Call 才是真正的性能瓶颈，因为它涉及 shader 编译、状态切换等开销。
+
+一次 SetPass 可能同时完成：
+```
+绑定 Shader
+绑定纹理
+设置 Blend
+设置 Depth Test
+设置 Cull
+绑定材质参数
+```
+
+随后可以复用这些状态，执行多个 Draw Call：
+```
+SetPass
+├── Draw Call 1
+├── Draw Call 2
+└── Draw Call 3
+```
 
 例如场景里有 5 个物体：
 ```
@@ -158,3 +180,26 @@ SetPass Call → 激活 Pass 1 (BASE)，设置 Cull Back 状态
   Draw Call  → 用 Pass 1 的 shader 绘制物体（画出本体）
 ```
 所以 1 个物体、1 个材质，产生了 2 个 SetPass Call + 2 个 Draw Call。
+
+---
+
+# Batch
+在 Unity 中：
+* Batch：Unity 引擎层组织好的一批渲染数据。
+* Draw Call：Unity通过图形 API（如 Metal、Vulkan）实际提交的绘制命令。
+
+通常 1 Batch ≈ 1 Draw Call，区别在于层级：Batch 是“准备好的一批东西”，Draw Call 是“把这批东西画出去的命令”。
+1 Draw Call 是向 GPU 提交“绘制这 1 个 Batch”的命令。
+
+Batch 可以理解为一次绘制所需数据的集合或引用，主要包括：
+* 几何数据：顶点缓冲、索引缓冲、SubMesh 范围。
+* Shader/材质状态：Shader Pass、关键字、混合、深度、剔除方式。
+* 材质资源：纹理、颜色、材质参数。
+* 物体数据：位置旋转缩放矩阵、光照贴图参数等。
+* 绘制参数：绘制多少索引、从哪里开始、实例数量。
+
+不过 Batch 通常不是把这些数据复制成一个“大包”。很多数据已经在 GPU 中，Draw Call 只是引用它们：
+```
+绑定材质和缓冲区
+→ DrawIndexed(索引数量, 起始位置, 实例数量)
+```
