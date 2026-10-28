@@ -84,6 +84,74 @@ Draw call: 每个物体最终还是需要 GPU 单独绘制一次。CPU 依然需
 而在SRP中流程下GPU拥有数据管理的 "生命权" ,管理大量不同材质但Shader变动较小的的内容。
 让数据在GPU中持久存在,从而减少消耗(SetPass Call)。
 
+### UnityPerDraw 和 UnityPerMaterial
+
+`UnityPerDraw` 和 `UnityPerMaterial` 都是 Shader 使用的常量缓冲区（CBUFFER），区别在于数据更新频率和来源。
+
+| 缓冲区 | 数据来源 | 常见内容 |
+|---|---|---|
+| `UnityPerDraw` | 当前绘制的 Renderer/物体 | 模型矩阵、光照贴图索引、探针数据、物体变换 |
+| `UnityPerMaterial` | 当前材质参数 |
+
+关系可以理解为：
+
+```text
+Renderer
+├─ Mesh / Transform ──────> UnityPerDraw
+└─ Material
+   └─ Shader Properties ──> UnityPerMaterial
+```
+
+例如两个 Renderer 共用一个 Material：
+
+```text
+Renderer A：自己的 UnityPerDraw ─┐
+                                ├─ 共用 UnityPerMaterial
+Renderer B：自己的 UnityPerDraw ─┘
+```
+
+因此它们颜色、粗糙度等材质属性相同，但模型矩阵不同。
+
+Renderer 是产生绘制任务的组件。Unity准备 Draw Call 时：
+
+1. 从 Renderer、Transform、Lightmap 等获得每物体数据。
+2. 写入或绑定 `UnityPerDraw`。
+3. 从 Renderer 使用的 Material 获得材质参数。
+4. 绑定 `UnityPerMaterial`。
+5. 使用 Shader 绘制 Mesh。
+
+不过“PerDraw”不完全等于“PerRenderer”。一个 Renderer 可能因为多个 SubMesh、Pass 或阴影阶段产生多个 Draw Call。
+
+兼容 SRP Batcher 的 Shader 通常要求：
+
+- Unity内置的每物体属性集中在一个 `UnityPerDraw` CBUFFER。
+- 所有材质属性集中在一个 `UnityPerMaterial` CBUFFER。
+- 不要把材质属性零散放进其他 CBUFFER。
+
+URP 自定义 Shader 常见写法：
+
+```hlsl
+CBUFFER_START(UnityPerMaterial)
+    float4 _BaseColor;
+    float4 _BaseMap_ST;
+    float _Smoothness;
+CBUFFER_END
+```
+
+`UnityPerDraw` 通常已经由 URP/HDRP 的公共 include 文件声明，不应自己重复声明。
+
+SRP Batcher 会缓存 `UnityPerMaterial` 数据，在连续绘制使用同一 Shader Variant 的 Renderer 时，主要切换 `UnityPerDraw`。这样减少 CPU 向 GPU 设置状态和上传参数的成本。
+
+需要注意：
+
+- SRP Batcher通常不会合并 Draw Call，只是降低每个 Draw Call 的 CPU 成本。
+- GPU Instancing 才侧重于把多个相似 Renderer 合并为实例化绘制。
+- `MaterialPropertyBlock` 可以给不同 Renderer 设置不同属性，但通常会使该 Renderer 无法走标准 SRP Batcher 路径。
+- 多个 Renderer 共用 Material，更有利于缓存和批处理。
+- `renderer.material` 会创建材质实例；`renderer.sharedMaterial` 使用共享材质。
+
+一句话总结：`Renderer` 决定“画什么以及在哪里画”，`UnityPerDraw` 保存这次绘制的物体数据，`UnityPerMaterial` 保存材质数据，而 SRP Batcher 利用这种数据分组来降低渲染提交成本。
+
 ### SRP Batcher vs. Dynamic Batching
 
 Both can be used together in SRP, but SRP Batcher takes precedence when enabled. For optimal performance in modern Unity projects, prefer SRP Batcher with proper shader setup.
