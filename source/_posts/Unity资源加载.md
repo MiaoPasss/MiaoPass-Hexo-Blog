@@ -5,7 +5,7 @@ categories:
 - Game Engine
 - Unity
 tags:
-- Resource management
+- Resource Management
 ---
 
 # Resources

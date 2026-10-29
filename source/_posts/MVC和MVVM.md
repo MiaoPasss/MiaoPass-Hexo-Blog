@@ -2,8 +2,6 @@
 title: MVC和MVVM
 date: 2026-03-04 17:46:46
 categories: Design Paradigm
-tags: 
-- Observer Pattern
 ---
 
 # MVC

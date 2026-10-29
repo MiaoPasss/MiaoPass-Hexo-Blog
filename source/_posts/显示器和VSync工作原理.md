@@ -2,8 +2,6 @@
 title: 显示器和VSync工作原理
 date: 2025-02-11 14:31:30
 categories: Graphics
-tags: 
-- Monitor
 ---
 
 # 显示器类别

@@ -1,7 +1,9 @@
 ---
 title: Google Protobuf
 date: 2026-10-27 17:49:23
+categories: Networks
 tags:
+- Optimization
 ---
 
 Google Protocol Buffers（简称 Protobuf）是一套“数据结构定义 + 代码生成 + 二进制序列化”工具。
