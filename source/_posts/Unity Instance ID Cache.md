@@ -21,27 +21,23 @@ At startup, the Instance ID cache is initialized with data for all Objects immed
 运行时层面，Unity 内存中每个 Object 的唯一标识，本质是一个整数，运行时动态分配
 是 File GUID + Local ID 的运行时映射
 
-```
-磁盘：  File GUID + Local ID  →  唯一定位一个资源
-运行时：Instance ID           →  指向内存中的 Object
-
-Instance ID Cache = 这个映射表
-{ Instance ID → (File GUID, Local ID, 内存地址或null) }
-```
+> 磁盘：  File GUID + Local ID  →  唯一定位一个资源  
+> 运行时：Instance ID           →  指向内存中的 Object  
+>
+> Instance ID Cache = 这个映射表  
+> { Instance ID → (File GUID, Local ID, 内存地址或null) }  
 
 * Instance ID Cache 的作用
 
-```
-启动时预填充：
-- 所有场景直接引用的资源
-- Resources 文件夹下的所有资源
-→ 这些 Object 的 Instance ID 提前注册，但不一定加载进内存
-
-运行时追加：
-- 从 AB 包加载新资源时
-- 代码里 new Texture2D() 创建时
-→ 新 Instance ID 动态加入缓存
-```
+> 启动时预填充：  
+> - 所有场景直接引用的资源  
+> - Resources 文件夹下的所有资源  
+> → 这些 Object 的 Instance ID 提前注册，但不一定加载进内存  
+>
+> 运行时追加：  
+> - 从 AB 包加载新资源时  
+> - 代码里 new Texture2D() 创建时  
+> → 新 Instance ID 动态加入缓存  
 
 当你持有一个对象引用，Unity 内部就是拿着 Instance ID 去缓存里查：
 1. 查到且有内存地址 → 直接返回

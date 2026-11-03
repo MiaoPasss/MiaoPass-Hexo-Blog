@@ -10,17 +10,16 @@ tags:
 
 # Sprite Atlas 图集
 把多张小纹理合并成一张大纹理，GPU 渲染时所有引用该图集的 Sprite 共享同一张纹理，满足合批条件，从而将多个 DrawCall 合并为一个。
-```
-未使用图集：
-  Sprite A（texture_a.png）→ DrawCall 1
-  Sprite B（texture_b.png）→ DrawCall 2
-  Sprite C（texture_c.png）→ DrawCall 3
 
-使用图集后：
-  Sprite A ─┐
-  Sprite B ─┼─ atlas.png → DrawCall 1（合批）
-  Sprite C ─┘
-```
+> 未使用图集：  
+> Sprite A（texture_a.png）→ DrawCall 1  
+> Sprite B（texture_b.png）→ DrawCall 2  
+> Sprite C（texture_c.png）→ DrawCall 3  
+>
+> 使用图集后：  
+> Sprite A ─┐  
+> Sprite B ─┼─ atlas.png → DrawCall 1（合批）  
+> Sprite C ─┘  
 
 除了减少 DrawCall，图集还有两个底层优化：
 * GPU 处理 2 的幂次方尺寸的纹理效率更高，图集会自动将小图打包成符合规范的大图
@@ -293,25 +292,23 @@ Atlas 本身不减少 Draw Call，它是让 batching 成为可能的前提条件
 图集解决的是纹理问题，把多张小图合并成一张大图。
 原来每个 sprite 用不同纹理 → 不同材质 → 每次渲染都要 SetPass Call 切换。合并后所有 sprite 共享同一张纹理 → 同一个材质 → 为后续 batching 创造条件。
 
-```
-没有图集：
-  图标A (tex_a) → SetPass → Draw
-  图标B (tex_b) → SetPass → Draw   ← 纹理不同，必须切换
-  图标C (tex_c) → SetPass → Draw
-
-有图集：
-  图标A (atlas) → SetPass → Draw
-  图标B (atlas) →           Draw   ← 同一纹理，可以 batch
-  图标C (atlas) →           Draw
-```
+> 没有图集：  
+> 图标A (tex_a) → SetPass → Draw  
+> 图标B (tex_b) → SetPass → Draw   ← 纹理不同，必须切换  
+> 图标C (tex_c) → SetPass → Draw  
+>
+> 有图集：  
+> 图标A (atlas) → SetPass → Draw  
+> 图标B (atlas) →           Draw   ← 同一纹理，可以 batch  
+> 图标C (atlas) →           Draw  
 
 ## Batching
 Static Batching / GPU Instancing 能合并 Draw Call，但不能合并 SetPass Call 。
-```
-// GPU Instancing：同一材质的100个物体(DrawCall x 100)
-SetPass Call × 1   ← 只切换一次状态
-Draw Call × 1      ← 合并成一次绘制（instanced）
-```
+
+> // GPU Instancing：同一材质的100个物体(DrawCall x 100)  
+> SetPass Call × 1   ← 只切换一次状态  
+> Draw Call × 1      ← 合并成一次绘制（instanced）  
+
 而 Dynamic Batching 同时减少两者，因为它把多个 mesh 合并成一个，用同一个材质一次画完。
 
 * Draw Call 多 → GPU 压力大
@@ -326,18 +323,16 @@ Sprite Atlas 确实减少 Draw Call，但不是靠自己，而是靠触发 Dynam
 Draw Call 能被合并的条件是：多个物体使用完全相同的材质（同 shader + 同纹理 + 同参数）。
 
 没有 Atlas 时：
-```
-图标A → 材质A (tex_a)  ← 不同纹理 = 不同材质
-图标B → 材质B (tex_b)  ← 无法 batch
-图标C → 材质C (tex_c)  ← 3个 Draw Call
-```
+
+> 图标A → 材质A (tex_a)  ← 不同纹理 = 不同材质  
+> 图标B → 材质B (tex_b)  ← 无法 batch  
+> 图标C → 材质C (tex_c)  ← 3个 Draw Call  
 
 有了 Atlas，所有图标共享同一张纹理，材质变成一样的，Dynamic Batching 才能介入把它们合并：
-```
-图标A → 材质X (atlas)  ← 同一材质
-图标B → 材质X (atlas)  ← Dynamic Batching 合并
-图标C → 材质X (atlas)  ← 1个 Draw Call
-```
+
+> 图标A → 材质X (atlas)  ← 同一材质  
+> 图标B → 材质X (atlas)  ← Dynamic Batching 合并  
+> 图标C → 材质X (atlas)  ← 1个 Draw Call  
 
 所以准确说法是：Atlas 统一了纹理，使 batching 成为可能，batching 才是真正减少 Draw Call 的那一步。 两者缺一不可。
 

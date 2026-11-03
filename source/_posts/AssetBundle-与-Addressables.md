@@ -10,23 +10,23 @@ tags:
 
 # AssetBundle
 AssetBundle 本质是一个压缩的二进制文件，内部结构如下：
-```
-AssetBundle 文件
-├── Header（包头：版本、压缩类型、元数据）
-├── Manifest（资源清单：资源名、依赖关系、GUID）
-└── Data Segment（序列化的资源数据）
-```
+
+> AssetBundle 文件  
+> ├── Header（包头：版本、压缩类型、元数据）  
+> ├── Manifest（资源清单：资源名、依赖关系、GUID）  
+> └── Data Segment（序列化的资源数据）  
+
 支持两种压缩格式：
 * LZMA：压缩率高，但加载时需整包解压，内存占用大
 * LZ4：块压缩，按需解压，加载更快，推荐使用
 
 ## 依赖关系
 AB 包之间存在依赖链，必须按顺序加载：
-```
-bundle_character.ab
-    └── 依赖 bundle_texture.ab
-            └── 依赖 bundle_shader.ab
-```
+
+> bundle_character.ab  
+> └── 依赖 bundle_texture.ab  
+> └── 依赖 bundle_shader.ab  
+
 如果 bundle_texture.ab 未加载，bundle_character.ab 中的资源会出现材质丢失（粉红色）。
 
 ## 打包脚本（Editor）
@@ -208,26 +208,24 @@ AB 是实际的数据包，可以包含：
 * AB 是平台相关的，Android、iOS、Windows 通常需要分别构建。
 
 *catalog.json* 不保存资源内容，它保存“资源怎样定位”的信息，例如：
-```
-地址/Label/GUID
-  → 使用哪个 Provider
-  → 对应哪个 AssetBundle
-  → Bundle 的远端 URL
-  → Bundle Hash、CRC、大小
-  → 依赖哪些其他 Bundle
-  → 最终加载的资源类型
-```
+
+> 地址/Label/GUID  
+> → 使用哪个 Provider  
+> → 对应哪个 AssetBundle  
+> → Bundle 的远端 URL  
+> → Bundle Hash、CRC、大小  
+> → 依赖哪些其他 Bundle  
+> → 最终加载的资源类型  
 
 所以运行时链路是：
-```
-Addressables 地址
-      ↓ 查询
-catalog.json
-      ↓ 找到 Bundle 地址和依赖
-下载/读取 AssetBundle
-      ↓
-从 AB 中取出 TextAsset、Prefab 等实际资源
-```
+
+> Addressables 地址  
+> ↓ 查询  
+> catalog.json  
+> ↓ 找到 Bundle 地址和依赖  
+> 下载/读取 AssetBundle  
+> ↓  
+> 从 AB 中取出 TextAsset、Prefab 等实际资源  
 
 启用 Remote Catalog 后，启动流程通常是：
 1. 加载 Player 内置的 Addressables 设置
@@ -243,36 +241,34 @@ catalog.json
 
 # Addressables
 Addressables 是对 AssetBundle 的高层封装，核心组件：
-```
-Addressables 系统
-├── Catalog（资源目录）
-│     └── 地址(string) → 资源位置(本地/远程) 的映射表
-├── ResourceLocator（资源定位器）
-│     └── 根据 Catalog 找到资源的实际路径
-├── ResourceProvider（资源提供者）
-│     └── 负责实际的加载逻辑（本地文件/网络下载）
-├── AsyncOperationHandle（异步操作句柄）
-│     └── 管理加载状态、进度、回调
-└── ResourceManager（资源管理器）
-      └── 引用计数、内存管理
-```
+
+> Addressables 系统  
+> ├── Catalog（资源目录）  
+> │     └── 地址(string) → 资源位置(本地/远程) 的映射表  
+> ├── ResourceLocator（资源定位器）  
+> │     └── 根据 Catalog 找到资源的实际路径  
+> ├── ResourceProvider（资源提供者）  
+> │     └── 负责实际的加载逻辑（本地文件/网络下载）  
+> ├── AsyncOperationHandle（异步操作句柄）  
+> │     └── 管理加载状态、进度、回调  
+> └── ResourceManager（资源管理器）  
+> └── 引用计数、内存管理  
 
 ## 加载流程
-```
-Addressables.LoadAssetAsync("Hero")
-    ↓
-ResourceLocator 查询 Catalog
-    ↓
-找到资源位置（本地 StreamingAssets 或远程 CDN URL）
-    ↓
-ResourceProvider 加载对应的 AssetBundle
-    ↓
-自动加载所有依赖 Bundle
-    ↓
-从 Bundle 中提取目标资源
-    ↓
-引用计数 +1，返回 AsyncOperationHandle
-```
+
+> `Addressables.LoadAssetAsync("Hero")`  
+> ↓  
+> ResourceLocator 查询 Catalog  
+> ↓  
+> 找到资源位置（本地 StreamingAssets 或远程 CDN URL）  
+> ↓  
+> ResourceProvider 加载对应的 AssetBundle  
+> ↓  
+> 自动加载所有依赖 Bundle  
+> ↓  
+> 从 Bundle 中提取目标资源  
+> ↓  
+> 引用计数 +1，返回 AsyncOperationHandle  
 
 ## 引用计数机制
 Addressables 内部维护引用计数，每次 LoadAssetAsync 计数 +1，每次 Release 计数 -1，归零时自动卸载 Bundle，这是它比原生 AB 包更安全的核心原因。
@@ -505,11 +501,10 @@ public class AddressablesUpdater : MonoBehaviour
 
 ## Create New Build
 这里指 Addressables 的：
-```
-Build
-  → New Build
-  → Default Build Script
-```
+
+> Build  
+> → New Build  
+> → Default Build Script  
 
 它构建的是 Addressables 内容，不等于构建 APK、AAB、IPA。New Build 的含义是“建立一个新的内容基线”：
 * 根据当前 Group 和 Schema 重新生成 Catalog。
@@ -529,10 +524,9 @@ Build
 * 更换平台。
 
 每个正式 Player 基线都应该保存：
-```
-Android / Player 1.0 / addressables_content_state.bin
-iOS     / Player 1.0 / addressables_content_state.bin
-```
+
+> Android / Player 1.0 / addressables_content_state.bin  
+> iOS     / Player 1.0 / addressables_content_state.bin  
 
 ## Update a Previous Build
 Update Build 获取已发布内容对应的addressables_content_state.bin，把它与当前资源状态比较，然后：
@@ -544,17 +538,17 @@ Update Build 获取已发布内容对应的addressables_content_state.bin，把�
 * Bundle 内只改了一个文件，也可能需要重新下载整个 Bundle。
 
 例如初始版本：
-```
-catalog v1:
-HotCode → hotcode_aaa.bundle
-Lobby   → lobby_111.bundle
-```
+
+> catalog v1:  
+> HotCode → hotcode_aaa.bundle  
+> Lobby   → lobby_111.bundle  
+
 只修改热更新 DLL 后：
-```
-catalog v2:
-HotCode → hotcode_bbb.bundle   新 Bundle
-Lobby   → lobby_111.bundle     继续引用旧 Bundle
-```
+
+> catalog v2:  
+> HotCode → hotcode_bbb.bundle   新 Bundle  
+> Lobby   → lobby_111.bundle     继续引用旧 Bundle  
+
 客户端只需要下载新 Catalog 和 hotcode_bbb.bundle。
 
 Update Build 适合：

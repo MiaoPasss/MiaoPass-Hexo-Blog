@@ -4,6 +4,12 @@ date: 2026-03-04 17:46:46
 categories: Design Paradigm
 ---
 
+| 架构 | M（Model） | V（View） | 中间层 |
+|---|---|---|---|
+| MVC | 独立 | 访问 C，也可观察 M | C 访问 V 和 M |
+| MVP（被动 View） | 独立 | 独立，通过事件报告操作 | P 访问 M 和 V 接口 |
+| MVVM | 独立 | 通过绑定访问 VM | VM 访问 M，不访问 V |
+
 # MVC
 * Model：纯数据容器（如：PlayerState），不包含 UI 或游戏逻辑。
 * View：负责渲染数据（如：UI 文本、生命值条），通常直接监听（观察） Model 的变化。

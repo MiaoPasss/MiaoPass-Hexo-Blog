@@ -19,11 +19,10 @@ Bilinear filtering works by taking the 4 nearest pixels and blending them togeth
 At the very edge of a sprite, one of those 4 neighbors is outside the sprite — it could be a transparent black pixel, a pixel from another sprite in an atlas, or garbage data. That outside color gets mixed into your edge pixel, producing a fringe（边缘）.
 
 For example:
-```
-[ edge pixel: orange ][ outside: transparent black (0,0,0,0) ]
-                      ^
-              bilinear samples here → blends orange + black = dark muddy fringe
-```
+
+> [ edge pixel: orange ][ outside: transparent black (0,0,0,0) ]  
+> ^  
+> bilinear samples here → blends orange + black = dark muddy fringe  
 
 This is exactly what you saw — the logo's colored edge pixels were bleeding into the transparent area around it, and because the shader was Opaque, those blended semi-transparent edge pixels were written as solid color instead of being discarded.
 
@@ -52,14 +51,12 @@ The cost of transparent is real — transparent objects can't use early-z, must 
 
 ## Blend Mode (within Transparent)
 
-```
-| Mode | Formula | Use case |
-| --- | --- | --- |
-| Alpha     |   src.rgb * src.a + dst.rgb * (1 - src.a) | Standard transparency, sprites, UI
-| Additive  |   src.rgb * src.a + dst.rgb   |   Glows, fire, particles that should brighten
-| Multiply  |	src.rgb * dst.rgb   |   Darkening effects, shadows, tinted overlays
-| Premultiply |	src.rgb + dst.rgb * (1 - src.a) |   Textures with premultiplied alpha baked in
-```
+> | Mode | Formula | Use case |
+> | --- | --- | --- |
+> | Alpha     |   src.rgb \* src.a + dst.rgb \* (1 - src.a) | Standard transparency, sprites, UI
+> | Additive  |   src.rgb \* src.a + dst.rgb   |   Glows, fire, particles that should brighten
+> | Multiply  |	src.rgb \* dst.rgb   |   Darkening effects, shadows, tinted overlays
+> | Premultiply |	src.rgb + dst.rgb \* (1 - src.a) |   Textures with premultiplied alpha baked in
 
 # The Z-Buffer
 
@@ -69,26 +66,25 @@ When a new fragment arrives, the GPU compares its depth against what's already i
 ## Front-to-Back Pass
 
 For opaque objects, Unity sorts them front-to-back before drawing. So the closest objects get drawn first.
-```
-Camera → [Chair] → [Table] → [Wall behind]
-           drawn     drawn      drawn
-           first     second     third
-```
+
+> Camera → [Chair] → [Table] → [Wall behind]  
+> drawn     drawn      drawn  
+> first     second     third  
+
 This matters because of early-z.
 
 ## Early-Z Culling
 Once the chair is drawn and its depth is written to the z-buffer, when the wall fragment arrives at the same pixel, the GPU checks:
-```
-wall depth (5.0) > z-buffer value (1.2) → discard, skip fragment shader
-```
+
+> wall depth (5.0) > z-buffer value (1.2) → discard, skip fragment shader  
+
 It never runs the fragment shader for the wall pixel at all. This is early-z culling — rejecting fragments before the expensive shading work happens.
 The savings are significant. Fragment shaders do lighting, texture sampling, math — all skipped for occluded pixels.
 
 ## Why transparent objects break this
 Transparent objects need to blend with what's behind them, so they must be drawn last, back-to-front:
-```
-Camera → [Wall] → [Table] → [Glass in front]
-```
+
+> Camera → [Wall] → [Table] → [Glass in front]  
 
 The glass needs the wall already in the framebuffer to blend against it. This means:
 * You can't sort front-to-back

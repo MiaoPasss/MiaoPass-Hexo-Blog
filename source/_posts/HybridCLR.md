@@ -71,10 +71,10 @@ HybridCLR 对 IL2CPP运行时进行扩充，添加Interpreter模块，将它由A
 
 # 热更新流程
 通常把业务逻辑放到独立的 asmdef，例如：
-```
-Game.Runtime       基础/AOT 程序集
-Game.HotUpdate     热更新程序集
-```
+
+> Game.Runtime       基础/AOT 程序集  
+> Game.HotUpdate     热更新程序集  
+
 构建后得到 *Game.HotUpdate.dll*
 
 * 为了让 Unity 把 DLL 当作普通资源打进 AssetBundle，通常复制并改名为：*Game.HotUpdate.dll.bytes*
@@ -91,11 +91,11 @@ Assembly hotAssembly = Assembly.Load(hotDll.bytes);
 
 ## AOT 与热更新代码互相调用
 程序执行过程中可能发生：
-```
-热更新方法 → 热更新方法：解释执行
-热更新方法 → Unity/AOT 方法：通过桥接调用原生代码
-AOT 方法 → 热更新方法：通过接口、虚方法、委托、反射等进入解释器
-```
+
+> 热更新方法 → 热更新方法：解释执行  
+> 热更新方法 → Unity/AOT 方法：通过桥接调用原生代码  
+> AOT 方法 → 热更新方法：通过接口、虚方法、委托、反射等进入解释器  
+
 解释器的参数布局与原生 ABI 不完全相同，所以 HybridCLR 会生成 Method Bridge，将参数、返回值、结构体、泛型等在解释器与 AOT 代码之间转换。
 
 * 什么是ABI
@@ -113,20 +113,19 @@ ABI = Application Binary Interface，应用二进制接口，它规定了两段�
 
 ## 补充 AOT 元数据
 HybridCLR 项目中还经常看到另一类 DLL：
-```
-mscorlib.dll.bytes
-System.dll.bytes
-Game.Runtime.dll.bytes
-UnityEngine.CoreModule.dll.bytes
-```
+
+> mscorlib.dll.bytes  
+> System.dll.bytes  
+> Game.Runtime.dll.bytes  
+> UnityEngine.CoreModule.dll.bytes  
+
 这些不是新的热更新逻辑，而是“AOT 补充元数据”。
 
 IL2CPP 构建时会裁剪程序集，而且某些泛型实例、方法体和反射元数据不会完整保留。热更新代码可能需要这些信息，例如：
-```
-List<SomeHotUpdateType>
-Dictionary<string, SomeHotUpdateType>
-反射访问 AOT 类型
-```
+
+> `List<SomeHotUpdateType>`  
+> `Dictionary<string, SomeHotUpdateType>`  
+> 反射访问 AOT 类型  
 
 启动时先加载对应元数据：
 ```cs

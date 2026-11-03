@@ -25,11 +25,10 @@ GPU Instancing: 使用一个DrawCall渲染多个相同材质的网格对象（�
 | **主要缺点** | ❌ **内存和显存开销大**：合并后的网格需要额外存储，且无法进行视锥体剔除（Culling）的细粒度操作（整个大网格要么全被剔除，要么全不被剔除）。<br>❌ **不能用于非静态物体**：物体不能移动、旋转、缩放。 |
 | **适用场景** | 场景中静止不动的所有物体，如建筑、地面、大块的岩石、静态的装饰物等。 |
 
-```
-场景里100棵树（同材质，Static）：
-  构建时合并 → 1个大mesh
-  运行时：SetPass × 1，Draw Call × 1
-```
+> 场景里100棵树（同材质，Static）：  
+> 构建时合并 → 1个大mesh  
+> 运行时：SetPass × 1，Draw Call × 1  
+
 代价是内存，合并后的大 mesh 常驻内存，物体也不能移动。
 
 ## Dynamic Batching
@@ -45,10 +44,9 @@ Unity 的 Dynamic Batching（动态批处理）是自动触发的。只要启用
 | **主要缺点** | ❌ **巨大的 CPU 开销**：每一帧都在CPU上做顶点变换和拷贝，往往得不偿失。<br>❌ **限制非常严格**：对顶点数、顶点属性等有诸多要求。<br>❌ **在 SRP (URP/HDRP) 中已废弃/不推荐**：因为它与更高效的 SRP Batcher 工作机制冲突。 |
 | **适用场景** | 在旧的内置渲染管线（Built-in RP）中，用于处理大量简单粒子、子弹等小物体。**在现代项目中几乎不再使用**。 |
 
-```
-每帧：
-  CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call
-```
+> 每帧：  
+> CPU 检查哪些动态物体同材质 → 临时合并 mesh → 一次 Draw Call  
+
 代价是 CPU 每帧都要做合并，物体多了反而更慢。
 
 ## SRP Batcher 
@@ -95,20 +93,16 @@ Draw call: 每个物体最终还是需要 GPU 单独绘制一次。CPU 依然需
 
 关系可以理解为：
 
-```text
-Renderer
-├─ Mesh / Transform ──────> UnityPerDraw
-└─ Material
-   └─ Shader Properties ──> UnityPerMaterial
-```
+> Renderer  
+> ├─ Mesh / Transform ──────> UnityPerDraw  
+> └─ Material  
+> └─ Shader Properties ──> UnityPerMaterial  
 
 例如两个 Renderer 共用一个 Material：
 
-```text
-Renderer A：自己的 UnityPerDraw ─┐
-                                ├─ 共用 UnityPerMaterial
-Renderer B：自己的 UnityPerDraw ─┘
-```
+> Renderer A：自己的 UnityPerDraw ─┐  
+> ├─ 共用 UnityPerMaterial  
+> Renderer B：自己的 UnityPerDraw ─┘  
 
 因此它们颜色、粗糙度等材质属性相同，但模型矩阵不同。
 
@@ -186,9 +180,8 @@ UNITY_INSTANCING_BUFFER_END(Props)
 * 粒子对像不能合批
 
 此时的CPU依然只提交1次Drawcall
-```
-100棵树（同mesh，同材质，不同位置/颜色）：
-  CPU：提交1次mesh + 100个transform数组
-  GPU：自己 instance 100次
-  结果：SetPass × 1，Draw Call × 1
-```
+
+> 100棵树（同mesh，同材质，不同位置/颜色）：  
+> CPU：提交1次mesh + 100个transform数组  
+> GPU：自己 instance 100次  
+> 结果：SetPass × 1，Draw Call × 1  

@@ -24,13 +24,12 @@ Resources文件夹是一个只读的文件夹，通过Resources.Load()来读取�
 Unity 打包时为每个资源分配 UID，同时建立一张"路径→UID"映射表存在配置文件里。
 加载时先查表把路径转成 UID，再用 UID 找到实际数据。
 
-```
-Assets/Resources/ui/icon.png
-         ↓ 打包
-resources.assets（包含所有未被场景引用的Resources资源）
-         ↓ 运行时
-Resources.Load("ui/icon", typeof(Sprite))
-```
+> Assets/Resources/ui/icon.png  
+> ↓ 打包  
+> resources.assets（包含所有未被场景引用的Resources资源）  
+> ↓ 运行时  
+> `Resources.Load("ui/icon", typeof(Sprite))`  
+
 特殊情况：如果 Resources 下的资源被场景直接引用，会打进 sharedassets\[level\].assets 而不是 resources.assets，不同目录下的 Resources 文件夹资源路径最好不重名。
 
 卸载资源时用UnloadUnusedAssets（注意：UnloadAsset 对 Resources 无效）
@@ -63,12 +62,11 @@ StreamingAssets文件夹也是一个只读的文件夹，其目录下的文件�
     * 放进 StreamingAssets 它还是原始 .png，Unity 不处理它。
 
 ## 各平台存储位置
-```
-Windows/Editor  → [项目]/Assets/StreamingAssets/
-iOS             → [.ipa包]/Data/Raw/
-Android         → [.apk包]/assets/  （压缩存储在zip内）
-WebGL           → 无法直接访问
-```
+
+> Windows/Editor  → [项目]/Assets/StreamingAssets/  
+> iOS             → [.ipa包]/Data/Raw/  
+> Android         → [.apk包]/assets/  （压缩存储在zip内）  
+> WebGL           → 无法直接访问  
 
 Android 特殊处理（存在 APK 压缩包内，不能直接用文件路径）：
 ```
@@ -108,11 +106,10 @@ videoPlayer.url = videoPath;
 
 # AssetBundle
 资源在 Inspector 面板右下角设置包名和变体名，相同包名打进同一个 .ab 文件。
-```
-包名: characters/hero    变体名: hd
-包名: characters/hero    变体名: sd
-→ 生成 characters/hero.hd 和 characters/hero.sd 两个变体包
-```
+
+> 包名: characters/hero    变体名: hd  
+> 包名: characters/hero    变体名: sd  
+> → 生成 characters/hero.hd 和 characters/hero.sd 两个变体包  
 
 变体包（Variant）是同一资源的不同版本，用于针对不同设备/平台加载不同质量的内容，但代码层面引用名称保持一致。
 
